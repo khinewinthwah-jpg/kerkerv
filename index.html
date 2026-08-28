@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Plex Auto Login</title>
+</head>
+<body style="background-color: #1f2326; color: #e5a00d; font-family: sans-serif; text-align: center; padding-top: 50px;">
+    <h2>Plex အကောင့်သို့ ချိတ်ဆက်နေပါသည်...</h2>
+    <script>
+        const token = new URLSearchParams(window.location.search).get('token');
+        if (token) {
+            localStorage.setItem('myPlexAccessToken', token);
+            window.location.replace('https://app.plex.tv/desktop');
+        } else {
+            document.body.innerHTML = "<h2>Token မမှန်ကန်ပါ။</h2>";
+        }
+    </script>
+</body>
+</html>
