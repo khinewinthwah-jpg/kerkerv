@@ -9,8 +9,10 @@
     <script>
         const token = new URLSearchParams(window.location.search).get('token');
         if (token) {
+            // Local Storage ထဲသို့ Token အတင်းသွင်းခြင်း
             localStorage.setItem('myPlexAccessToken', token);
-            window.location.replace('https://app.plex.tv/desktop');
+            // အကိုပေးတဲ့ watch.plex.tv/me လင့်ခ်ဆီသို့ တန်းပို့ခြင်း
+            window.location.replace('https://watch.plex.tv/me');
         } else {
             document.body.innerHTML = "<h2>Token မမှန်ကန်ပါ။</h2>";
         }
