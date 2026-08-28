@@ -7,12 +7,17 @@
 <body style="background-color: #1f2326; color: #e5a00d; font-family: sans-serif; text-align: center; padding-top: 50px;">
     <h2>Plex အကောင့်သို့ ချိတ်ဆက်နေပါသည်...</h2>
     <script>
-        const token = new URLSearchParams(window.location.search).get('token');
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
         if (token) {
-            // Local Storage ထဲသို့ Token အတင်းသွင်းခြင်း
+            // Storage အမျိုးစုံထဲသို့ Token ထည့်ခြင်း
+            localStorage.setItem('plexToken', token);
             localStorage.setItem('myPlexAccessToken', token);
-            // အကိုပေးတဲ့ watch.plex.tv/me လင့်ခ်ဆီသို့ တန်းပို့ခြင်း
-            window.location.replace('https://watch.plex.tv/me');
+            localStorage.setItem('authToken', token);
+            
+            // watch.plex.tv ဆီသို့ Token နဲ့တကွ တိုက်ရိုက်ပို့ခြင်း
+            window.location.replace('https://watch.plex.tv/?X-Plex-Token=' + token);
         } else {
             document.body.innerHTML = "<h2>Token မမှန်ကန်ပါ။</h2>";
         }
